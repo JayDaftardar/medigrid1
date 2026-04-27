@@ -1,91 +1,204 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Design Tokens ─────────────────────────────────────────── */
 :root {
-  --bg-color: #0A0E1A;
-  --surface-color: #111827;
-  --border-color: #1F2937;
-  --primary-color: #06B6D4;
+  --bg:            #F0F4F8;
+  --surface:       #FFFFFF;
+  --surface-alt:   #F8FAFC;
+  --border:        #E2E8F0;
+  --border-strong: #CBD5E1;
+
+  --primary:       #0369A1;   /* Medical blue */
+  --primary-dark:  #075985;
+  --primary-50:    #EFF6FF;
+  --primary-100:   #DBEAFE;
+
+  --teal:          #0891B2;
+  --teal-50:       #ECFEFF;
+
+  --text-1:        #0F172A;   /* headings */
+  --text-2:        #334155;   /* body */
+  --text-3:        #64748B;   /* secondary */
+  --text-4:        #94A3B8;   /* placeholder/muted */
+
+  --success:       #16A34A;
+  --success-bg:    #F0FDF4;
+  --warning:       #D97706;
+  --warning-bg:    #FFFBEB;
+  --danger:        #DC2626;
+  --danger-bg:     #FEF2F2;
 }
+
+/* ─── Base ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background-color: var(--bg-color);
-  color: #F9FAFB;
-  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text-2);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
   overflow-x: hidden;
 }
 
 @layer base {
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-bold tracking-tight text-white;
-    font-family: 'DM Sans', sans-serif;
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-1);
+    font-family: 'Inter', sans-serif;
+    @apply font-bold tracking-tight;
   }
 }
 
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; }
+
+/* ─── Background grid (subtle, light) ──────────────────────── */
 .medi-grid-bg {
-  background-image: radial-gradient(#1F2937 0.5px, transparent 0.5px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-color: var(--bg);
 }
 
+/* ─── Card ──────────────────────────────────────────────────── */
 .glass-card {
-  @apply bg-[#111827]/80 backdrop-blur-md border border-[#1F2937];
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .glass-card:hover {
-  @apply border-[#06B6D4]/30 shadow-cyan-glow-light;
-  transform: scale(1.005);
-  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 12px rgba(3,105,161,0.08), 0 1px 4px rgba(0,0,0,0.06);
+  border-color: rgba(3,105,161,0.25);
 }
 
-.cyan-glow {
-  @apply shadow-cyan-glow;
-}
-
+/* ─── Sidebar nav active item ───────────────────────────────── */
 .active-nav-item {
-  @apply text-[#06B6D4] bg-[#06B6D4]/10 border-l-4 border-[#06B6D4];
+  background: var(--primary-50);
+  color: var(--primary);
+  border-left: 3px solid var(--primary);
+  font-weight: 600;
 }
 
+/* ─── Sidebar ───────────────────────────────────────────────── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+
+/* ─── Page header bar ───────────────────────────────────────── */
+.page-header {
+  background: rgba(255,255,255,0.92);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+
+/* ─── Pulse animations ──────────────────────────────────────── */
 @keyframes pulse-red {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  50% {
-    transform: scale(1.5);
-    opacity: 0.5;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(1.5); }
+}
+@keyframes escalation-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
 }
 
-.pulse-dot {
-  @apply rounded-full;
-}
-
+.pulse-dot { border-radius: 50%; }
 .pulse-dot.danger {
-  @apply bg-red-500 shadow-danger-glow;
+  background: var(--danger);
   animation: pulse-red 2s infinite;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+/* ─── Scrollbar hide ────────────────────────────────────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ─── Badges ─────────────────────────────────────────────────── */
+/* Override dark badge colors to use proper light-theme tones */
+.badge-cyan   { background: #EFF6FF; color: #0369A1; border-color: #BFDBFE; }
+.badge-green  { background: #F0FDF4; color: #16A34A; border-color: #BBF7D0; }
+.badge-amber  { background: #FFFBEB; color: #D97706; border-color: #FDE68A; }
+.badge-red    { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+.badge-gray   { background: #F8FAFC; color: #475569; border-color: #E2E8F0; }
+.badge-purple { background: #FAF5FF; color: #7C3AED; border-color: #DDD6FE; }
+.badge-blue   { background: #EFF6FF; color: #1D6FA4; border-color: #BFDBFE; }
+
+/* ─── Input focus ring ──────────────────────────────────────── */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(3,105,161,0.10);
 }
 
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* ─── Stat card icon blobs ───────────────────────────────────── */
+.stat-blob {
+  position: absolute;
+  right: -8px; bottom: -8px;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0.12;
+}
+
+/* ─── Table ─────────────────────────────────────────────────── */
+table thead th {
+  background: var(--surface-alt);
+  color: var(--text-3);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+table tbody tr:hover { background: var(--primary-50); }
+
+/* ─── Progress bar ───────────────────────────────────────────── */
+.progress-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.8s ease;
+}
+
+/* ─── Primary button ─────────────────────────────────────────── */
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.btn-primary:hover {
+  background: var(--primary-dark);
+  box-shadow: 0 4px 12px rgba(3,105,161,0.25);
+}
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ─── Chart tooltip ─────────────────────────────────────────── */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  color: var(--text-1) !important;
+  font-size: 12px !important;
 }

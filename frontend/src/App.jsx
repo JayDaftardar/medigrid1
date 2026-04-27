@@ -16,55 +16,65 @@ import { api, setToken, clearToken } from './lib/api';
 
 // --- COMPONENTS ---
 
-const Badge = ({ children, color = 'cyan' }) => {
+const Badge = ({ children, color = 'blue' }) => {
   const colors = {
-    cyan: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-    green: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    amber: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    red: 'bg-red-500/10 text-red-400 border-red-500/20',
-    gray: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
-    purple: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    cyan:   'bg-blue-50 text-blue-700 border-blue-200',
+    blue:   'bg-blue-50 text-blue-700 border-blue-200',
+    green:  'bg-emerald-50 text-emerald-700 border-emerald-200',
+    amber:  'bg-amber-50 text-amber-700 border-amber-200',
+    red:    'bg-red-50 text-red-600 border-red-200',
+    gray:   'bg-slate-100 text-slate-600 border-slate-200',
+    purple: 'bg-purple-50 text-purple-700 border-purple-200',
   };
   return (
-    <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${colors[color] || colors.cyan}`}>
+    <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold border ${colors[color] || colors.blue}`}>
       {children}
     </span>
   );
 };
 
-const StatCard = ({ title, value, label, icon: Icon, color, trend }) => (
-  <div className="glass-card p-5 rounded-xl flex flex-col gap-3 relative overflow-hidden group border border-slate-800/50">
-    <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-${color}-500/5 rounded-full blur-2xl group-hover:bg-${color}-500/10 transition-colors`} />
-    <div className="flex justify-between items-start">
-      <div className={`p-2 rounded-lg bg-${color}-500/10 text-${color}-400`}>
-        <Icon size={20} />
+const StatCard = ({ title, value, label, icon: Icon, color, trend }) => {
+  const palettes = {
+    cyan:    { bg: 'bg-blue-50',    icon: 'text-blue-600',    blob: 'bg-blue-400' },
+    blue:    { bg: 'bg-blue-50',    icon: 'text-blue-600',    blob: 'bg-blue-400' },
+    emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', blob: 'bg-emerald-400' },
+    red:     { bg: 'bg-red-50',     icon: 'text-red-600',     blob: 'bg-red-400' },
+    amber:   { bg: 'bg-amber-50',   icon: 'text-amber-600',   blob: 'bg-amber-400' },
+  };
+  const p = palettes[color] || palettes.cyan;
+  return (
+    <div className="glass-card p-5 rounded-xl flex flex-col gap-3 relative overflow-hidden group">
+      <div className={`stat-blob ${p.blob}`} />
+      <div className="flex justify-between items-start">
+        <div className={`p-2 rounded-lg ${p.bg} ${p.icon}`}>
+          <Icon size={20} />
+        </div>
+        {trend !== undefined && (
+          <span className={`text-xs font-semibold flex items-center ${trend > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+            {trend > 0 ? <ArrowUpRight size={14} className="mr-0.5" /> : <ArrowDownRight size={14} className="mr-0.5" />}
+            {Math.abs(trend)}%
+          </span>
+        )}
       </div>
-      {trend !== undefined && (
-        <span className={`text-xs font-medium flex items-center ${trend > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-          {trend > 0 ? <ArrowUpRight size={14} className="mr-0.5" /> : <ArrowDownRight size={14} className="mr-0.5" />}
-          {Math.abs(trend)}%
-        </span>
-      )}
+      <div>
+        <div className="text-2xl font-bold font-mono tracking-tight text-slate-900">{value}</div>
+        <div className="text-sm text-slate-500 font-medium mt-0.5">{title}</div>
+        {label && <div className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">{label}</div>}
+      </div>
     </div>
-    <div>
-      <div className="text-2xl font-bold font-mono tracking-tight text-white">{value}</div>
-      <div className="text-sm text-slate-400 font-medium">{title}</div>
-      {label && <div className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider">{label}</div>}
-    </div>
-  </div>
-);
+  );
+};
 
 const Modal = ({ isOpen, onClose, title, children }) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="glass-card w-full max-w-2xl rounded-2xl shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200 border border-slate-700">
-        <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-          <h2 className="text-xl font-bold text-white">{title}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 transition-colors">
-            <X size={20} />
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in duration-200 border border-slate-200">
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+          <h2 className="text-lg font-bold text-slate-900">{title}</h2>
+          <button onClick={onClose} className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-400 transition-colors">
+            <X size={18} />
           </button>
         </div>
         <div className="p-6 overflow-y-auto scrollbar-hide">
@@ -76,30 +86,64 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 };
 
 const Toast = ({ message, type = 'success', onClose }) => (
-  <div className={`fixed bottom-6 right-6 z-[60] flex items-center gap-3 glass-card px-4 py-3 rounded-xl shadow-2xl animate-in slide-in-from-right duration-300 border-l-4 ${type === 'error' ? 'border-l-red-500' : 'border-l-cyan-500'}`}>
-    {type === 'success' && <CheckCircle2 className="text-emerald-400" size={18} />}
-    {type === 'error' && <AlertCircle className="text-red-400" size={18} />}
-    {type === 'info' && <Info className="text-cyan-400" size={18} />}
-    <span className="text-sm text-slate-200 font-medium">{message}</span>
-    <button onClick={onClose} className="ml-2 text-slate-500 hover:text-white"><X size={14} /></button>
+  <div className={`fixed bottom-6 right-6 z-[60] flex items-center gap-3 bg-white px-4 py-3 rounded-xl shadow-xl animate-in slide-in-from-right duration-300 border-l-4 border border-slate-200 ${type === 'error' ? 'border-l-red-500' : type === 'info' ? 'border-l-blue-500' : 'border-l-emerald-500'}`}>
+    {type === 'success' && <CheckCircle2 className="text-emerald-500" size={18} />}
+    {type === 'error' && <AlertCircle className="text-red-500" size={18} />}
+    {type === 'info' && <Info className="text-blue-500" size={18} />}
+    <span className="text-sm text-slate-700 font-medium">{message}</span>
+    <button onClick={onClose} className="ml-2 text-slate-400 hover:text-slate-700"><X size={14} /></button>
   </div>
 );
+
+// --- ESCALATION BADGE ---
+const ESCALATION_CONFIG = {
+  0: { name: "Normal",    color: "#10B981", bg: "rgba(16,185,129,0.15)",  border: "rgba(16,185,129,0.4)"  },
+  1: { name: "Pressured", color: "#F59E0B", bg: "rgba(245,158,11,0.15)",  border: "rgba(245,158,11,0.4)"  },
+  2: { name: "Diverted",  color: "#F97316", bg: "rgba(249,115,22,0.15)",  border: "rgba(249,115,22,0.4)"  },
+  3: { name: "Critical",  color: "#EF4444", bg: "rgba(239,68,68,0.15)",   border: "rgba(239,68,68,0.4)"   },
+};
+
+const EscalationBadge = ({ level, size = "sm" }) => {
+  const cfg = ESCALATION_CONFIG[level] ?? ESCALATION_CONFIG[0];
+  const isLarge = size === "lg";
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: "5px",
+      padding: isLarge ? "4px 12px" : "2px 8px",
+      borderRadius: "999px",
+      background: cfg.bg,
+      border: `1px solid ${cfg.border}`,
+      fontSize: isLarge ? "13px" : "11px",
+      fontWeight: 600,
+      color: cfg.color,
+      whiteSpace: "nowrap",
+    }}>
+      <span style={{
+        width: isLarge ? 8 : 6, height: isLarge ? 8 : 6,
+        borderRadius: "50%", background: cfg.color,
+        boxShadow: level >= 2 ? `0 0 6px ${cfg.color}` : "none",
+        animation: level >= 2 ? "escalation-pulse 2s infinite" : "none"
+      }} />
+      L{level} {cfg.name}
+    </span>
+  );
+};
 
 const LoadingSkeleton = ({ count = 3 }) => (
   <div className="animate-pulse space-y-4 w-full">
     {[...Array(count)].map((_, i) => (
-      <div key={i} className="h-24 bg-slate-800/50 rounded-xl border border-slate-700/30" />
+      <div key={i} className="h-24 bg-slate-100 rounded-xl border border-slate-200" />
     ))}
   </div>
 );
 
 const ErrorState = ({ message, onRetry }) => (
-  <div className="flex flex-col items-center justify-center h-64 text-gray-400">
-    <AlertTriangle size={40} className="text-red-500 mb-3" />
-    <p className="text-lg">{message || 'Failed to load data'}</p>
+  <div className="flex flex-col items-center justify-center h-64 text-slate-400">
+    <AlertTriangle size={40} className="text-red-400 mb-3" />
+    <p className="text-lg text-slate-600">{message || 'Failed to load data'}</p>
     <button
       onClick={onRetry}
-      className="mt-3 px-4 py-2 bg-cyan-600 rounded text-white text-sm"
+      className="mt-4 px-5 py-2 bg-blue-600 rounded-lg text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
     >
       Retry
     </button>
@@ -110,7 +154,8 @@ const ErrorState = ({ message, onRetry }) => (
 
 const Dashboard = ({ 
   effectiveRole, dashStats, alerts, trends, alertStats, 
-  loading, loadError, loadInitialData, handleResolveAlert, setActivePage 
+  loading, loadError, loadInitialData, handleResolveAlert, setActivePage,
+  escalationSummary
 }) => {
   if (loadError) return <ErrorState message={loadError} onRetry={loadInitialData} />;
   if (loading && !dashStats) return <LoadingSkeleton count={4} />;
@@ -134,6 +179,47 @@ const Dashboard = ({
             icon={Activity} color="amber" 
           />
         </div>
+
+        {escalationSummary && (
+          <div style={{
+            background: "rgba(16,34,68,0.7)", border: "1px solid rgba(30,48,94,0.6)",
+            borderRadius: "12px", padding: "16px 24px", marginBottom: "4px"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+              <span style={{ color: "#94A3B8", fontSize: "13px", fontWeight: 600, marginRight: "8px" }}>
+                CITY ESCALATION STATUS
+              </span>
+              {[
+                { key: "normal",    level: 0 },
+                { key: "pressured", level: 1 },
+                { key: "diverted",  level: 2 },
+                { key: "critical",  level: 3 },
+              ].map(({ key, level }) => {
+                const cfg = ESCALATION_CONFIG[level];
+                const count = escalationSummary[key] ?? 0;
+                return (
+                  <div key={key} style={{
+                    display: "flex", alignItems: "center", gap: "8px",
+                    padding: "6px 14px", borderRadius: "8px",
+                    background: cfg.bg, border: `1px solid ${cfg.border}`
+                  }}>
+                    <span style={{ fontSize: "22px", fontWeight: 700, color: cfg.color }}>{count}</span>
+                    <span style={{ fontSize: "12px", color: cfg.color, fontWeight: 500 }}>{cfg.name}</span>
+                  </div>
+                );
+              })}
+              {((escalationSummary.diverted ?? 0) > 0 || (escalationSummary.critical ?? 0) > 0) && (
+                <div style={{
+                  marginLeft: "auto", padding: "6px 14px", borderRadius: "8px",
+                  background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)",
+                  color: "#EF4444", fontSize: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "6px"
+                }}>
+                  ⚠ {(escalationSummary.diverted ?? 0) + (escalationSummary.critical ?? 0)} hospitals need attention
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 glass-card p-6 rounded-2xl border border-slate-800">
@@ -212,11 +298,11 @@ const Dashboard = ({
     if (!h) {
       return (
         <div className="flex flex-col items-center justify-center h-[60vh] space-y-4">
-          <div className="w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-500">
+          <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
             <LayoutDashboard size={32} />
           </div>
-          <h2 className="text-2xl font-bold text-white">Dashboard Unavailable</h2>
-          <p className="text-slate-400 text-center max-w-md">Your account has not been assigned to a hospital yet. Please contact the System Administrator to complete your setup.</p>
+          <h2 className="text-2xl font-bold text-slate-800">Dashboard Unavailable</h2>
+          <p className="text-slate-500 text-center max-w-md">Your account has not been assigned to a hospital yet. Please contact the System Administrator to complete your setup.</p>
         </div>
       );
     }
@@ -228,11 +314,11 @@ const Dashboard = ({
           <StatCard title="Avg. Resolution" value={`${alertStats?.avg_resolution_minutes || 0}m`} icon={Clock} color="cyan" />
         </div>
 
-        <div className="glass-card rounded-2xl p-8 border border-slate-800">
+        <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-md">
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h2 className="text-2xl font-bold text-white">{h?.name}</h2>
-              <p className="text-slate-400 text-sm">Real-time resource dashboard</p>
+              <h2 className="text-2xl font-bold text-slate-800">{h?.name}</h2>
+              <p className="text-slate-500 text-sm">Real-time resource dashboard</p>
             </div>
             <Badge color="green">Active</Badge>
           </div>
@@ -245,9 +331,9 @@ const Dashboard = ({
                 <div key={type} className="space-y-4">
                   <div className="flex justify-between items-end">
                     <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">{type.replace('_', ' ')}</div>
-                    <div className="text-2xl font-bold font-mono text-white">{res.available}/{res.total}</div>
+                    <div className="text-2xl font-bold font-mono text-slate-800">{res.available}/{res.total}</div>
                   </div>
-                  <div className="h-3 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                  <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                     <div 
                       className={`h-full transition-all duration-1000 ${perc < 20 ? 'bg-red-500' : perc < 50 ? 'bg-amber-500' : 'bg-emerald-500'}`}
                       style={{ width: `${perc}%` }}
@@ -259,8 +345,8 @@ const Dashboard = ({
             })}
           </div>
           
-          <div className="mt-10 pt-10 border-t border-slate-800 flex justify-center">
-            <button onClick={() => setActivePage('myhospital')} className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all flex items-center gap-2">
+          <div className="mt-10 pt-10 border-t border-slate-200 flex justify-center">
+            <button onClick={() => setActivePage('myhospital')} className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2">
               Update Availability <RefreshCcw size={18} />
             </button>
           </div>
@@ -290,20 +376,20 @@ const HospitalsPage = ({
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="relative w-full md:w-96">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             type="text"
             placeholder="Search hospitals or zones..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-colors"
+            className="w-full bg-white border border-slate-300 rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-800 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-colors"
           />
         </div>
         <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
           <select
             value={hospitalFilters.type}
             onChange={(e) => setHospitalFilters({ ...hospitalFilters, type: e.target.value })}
-            className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white focus:outline-none"
+            className="bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs text-slate-700 focus:outline-none focus:border-blue-400"
           >
             <option>All Types</option>
             <option>Public</option>
@@ -312,7 +398,7 @@ const HospitalsPage = ({
           <select
             value={hospitalFilters.zone}
             onChange={(e) => setHospitalFilters({ ...hospitalFilters, zone: e.target.value })}
-            className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white focus:outline-none"
+            className="bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs text-slate-700 focus:outline-none focus:border-blue-400"
           >
             <option>All Zones</option>
             {['North', 'South', 'East', 'West', 'Central', 'Suburban'].map(z => <option key={z} value={z}>{z}</option>)}
@@ -320,7 +406,7 @@ const HospitalsPage = ({
           {effectiveRole === 'system_admin' && (
             <button
               onClick={() => setModals({ ...modals, addHospital: true })}
-              className="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-xl text-xs flex items-center gap-2 transition-all whitespace-nowrap"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl text-xs flex items-center gap-2 transition-all whitespace-nowrap"
             >
               <Plus size={16} /> Add Hospital
             </button>
@@ -331,36 +417,47 @@ const HospitalsPage = ({
       {loading ? <LoadingSkeleton count={6} /> : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredHospitals.map(h => (
-            <div key={h.hospital_id} className="glass-card rounded-2xl p-5 flex flex-col gap-4 group border border-slate-800/50 hover:border-cyan-500/30 transition-all">
+            <div key={h.hospital_id} className="bg-white rounded-2xl p-5 flex flex-col gap-4 group border border-slate-200 hover:border-blue-300 transition-all shadow-sm hover:shadow-md">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
-                  <h4 className="font-bold text-white group-hover:text-cyan-400 transition-colors">{h.name}</h4>
-                  <div className="flex gap-2">
+                  <h4 className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{h.name}</h4>
+                  <EscalationBadge level={h.escalation_level ?? 0} />
+                  <div className="flex gap-2 mt-1">
                     <Badge color={h.type.toLowerCase() === 'public' ? 'blue' : 'purple'}>{h.type}</Badge>
                     <Badge color="gray">{h.zone}</Badge>
                     <Badge color={h.status === 'active' ? 'green' : 'red'}>{h.status}</Badge>
                   </div>
                 </div>
-                <button className="p-1 hover:bg-slate-800 rounded-lg text-slate-500"><MoreVertical size={16} /></button>
+                <button className="p-1 hover:bg-slate-100 rounded-lg text-slate-400"><MoreVertical size={16} /></button>
               </div>
+
+              {h.escalation_level === 3 && (
+                <div style={{
+                  background: "#FEF2F2", border: "1px solid #FECACA",
+                  borderRadius: "6px", padding: "6px 10px",
+                  color: "#EF4444", fontSize: "11px", fontWeight: 600, textAlign: "center"
+                }}>
+                  ⚠ DIVERTING — This hospital is at critical capacity. Route non-critical patients elsewhere.
+                </div>
+              )}
 
               <div className="space-y-3">
                 {[
-                  { key: 'general_bed', label: 'General Beds', color: 'emerald' },
-                  { key: 'icu_bed', label: 'ICU Beds', color: 'amber' },
-                  { key: 'ventilator', label: 'Ventilators', color: 'cyan' },
+                  { key: 'general_bed', label: 'General Beds', bgClass: 'bg-emerald-500' },
+                  { key: 'icu_bed', label: 'ICU Beds', bgClass: 'bg-amber-500' },
+                  { key: 'ventilator', label: 'Ventilators', bgClass: 'bg-blue-500' },
                 ].map((res) => {
                   const data = h.resources?.[res.key] || { available: 0, total: 0 };
                   const perc = Math.round((data.available / (data.total || 1)) * 100);
                   return (
                     <div key={res.key} className="space-y-1">
                       <div className="flex justify-between text-[11px] font-medium">
-                        <span className="text-slate-400">{res.label}</span>
-                        <span className="text-white font-mono">{data.available}/{data.total}</span>
+                        <span className="text-slate-500">{res.label}</span>
+                        <span className="text-slate-800 font-mono">{data.available}/{data.total}</span>
                       </div>
-                      <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                         <div
-                          className={`h-full bg-${res.color}-500 transition-all duration-1000`}
+                          className={`h-full ${res.bgClass} transition-all duration-1000`}
                           style={{ width: `${perc}%` }}
                         />
                       </div>
@@ -369,11 +466,11 @@ const HospitalsPage = ({
                 })}
               </div>
 
-              <div className="mt-2 pt-4 border-t border-slate-800 flex justify-between items-center text-[10px]">
+              <div className="mt-2 pt-4 border-t border-slate-100 flex justify-between items-center text-[10px]">
                 <span className="text-slate-500">Updated: {new Date(h.last_updated).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 <div className="flex gap-2">
-                  <button onClick={() => setModals({ ...modals, hospitalDetails: h })} className="px-3 py-1.5 rounded-lg border border-slate-700 hover:border-cyan-500/50 hover:bg-cyan-500/5 text-slate-300 hover:text-cyan-400 transition-all">Details</button>
-                  {effectiveRole === 'system_admin' && <button className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition-colors">Edit</button>}
+                  <button onClick={() => setModals({ ...modals, hospitalDetails: h })} className="px-3 py-1.5 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-slate-600 hover:text-blue-600 transition-all">Details</button>
+                  {effectiveRole === 'system_admin' && <button className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors">Edit</button>}
                 </div>
               </div>
             </div>
@@ -389,6 +486,8 @@ const SearchPage = ({ searchQuery, setSearchQuery, showToast, userLocation, curr
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
   const [searchFilters, setSearchFilters] = useState({ resource: 'general_bed', zone: 'All Zones' });
+  const [includeCritical, setIncludeCritical] = useState(false);
+  const [excludedCriticalCount, setExcludedCriticalCount] = useState(0);
 
   const handleSearchAction = async () => {
     setSearching(true);
@@ -397,9 +496,11 @@ const SearchPage = ({ searchQuery, setSearchQuery, showToast, userLocation, curr
       const res = await api.search({
         resource_type: searchFilters.resource,
         zone: searchFilters.zone,
-        q: searchQuery
+        q: searchQuery,
+        include_critical: includeCritical,
       });
       setSearchResults(res.data.results);
+      setExcludedCriticalCount(res.data.excluded_critical_count ?? 0);
     } catch (err) {
       showToast('Search failed', 'error');
       setSearchError('Failed to load search results');
@@ -435,8 +536,8 @@ const SearchPage = ({ searchQuery, setSearchQuery, showToast, userLocation, curr
   return (
     <div className="space-y-12 animate-in fade-in duration-500">
       <div className="max-w-4xl mx-auto text-center space-y-6 py-12">
-        <h1 className="text-4xl lg:text-5xl font-extrabold bg-gradient-to-r from-white to-slate-500 bg-clip-text text-transparent">Find Available Resources</h1>
-        <p className="text-slate-400 text-lg">Real-time capacity tracking across all hospitals in Pune city.</p>
+        <h1 className="text-4xl lg:text-5xl font-extrabold text-slate-800">Find Available Resources</h1>
+        <p className="text-slate-500 text-lg">Real-time capacity tracking across all hospitals in Pune city.</p>
 
         {currentUser?.role === 'operator' && (
           <div className="mb-6 p-4 glass-card border border-cyan-500/20 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
@@ -458,16 +559,16 @@ const SearchPage = ({ searchQuery, setSearchQuery, showToast, userLocation, curr
           </div>
         )}
 
-        <div className="glass-card p-2 rounded-2xl flex flex-col md:flex-row gap-2 shadow-2xl relative z-10 border border-slate-800">
+        <div className="bg-white p-2 rounded-2xl flex flex-col md:flex-row gap-2 shadow-xl relative z-10 border border-slate-200">
           <div className="flex-1 relative">
-            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400" size={20} />
+            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-500" size={20} />
             <input
               type="text"
               placeholder="Enter hospital name or address..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearchAction()}
-              className="w-full bg-slate-900/50 border-none rounded-xl py-4 pl-12 pr-4 text-white focus:ring-2 ring-cyan-500/20"
+              className="w-full bg-slate-50/50 border border-transparent rounded-xl py-4 pl-12 pr-4 text-slate-800 focus:bg-white focus:border-blue-200 focus:ring-4 ring-blue-500/10 transition-all outline-none"
             />
           </div>
           <button 
@@ -485,7 +586,7 @@ const SearchPage = ({ searchQuery, setSearchQuery, showToast, userLocation, curr
             <button 
               key={type}
               onClick={() => setSearchFilters({ ...searchFilters, resource: type })}
-              className={`px-4 py-2 rounded-full border transition-all ${searchFilters.resource === type ? 'border-cyan-500/30 bg-cyan-500/10 text-cyan-400 font-bold' : 'border-slate-800 hover:border-slate-700 text-slate-400'}`}
+              className={`px-4 py-2 rounded-full border transition-all ${searchFilters.resource === type ? 'border-blue-200 bg-blue-50 text-blue-700 font-bold' : 'border-slate-300 hover:border-slate-400 text-slate-600 bg-white'}`}
             >
               {type.replace('_', ' ').toUpperCase()}
             </button>
@@ -493,11 +594,33 @@ const SearchPage = ({ searchQuery, setSearchQuery, showToast, userLocation, curr
           <select 
             value={searchFilters.zone}
             onChange={(e) => setSearchFilters({ ...searchFilters, zone: e.target.value })}
-            className="bg-slate-900 border border-slate-800 rounded-full px-4 py-2 text-slate-400 focus:outline-none"
+            className="bg-white border border-slate-300 rounded-full px-4 py-2 text-slate-700 focus:outline-none focus:border-blue-400"
           >
             <option>All Zones</option>
             {['North', 'South', 'East', 'West', 'Central', 'Suburban'].map(z => <option key={z} value={z}>{z}</option>)}
           </select>
+        </div>
+
+        {/* Include Critical toggle + exclusion warning */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center", marginTop: "-8px" }}>
+          {excludedCriticalCount > 0 && !includeCritical && (
+            <div style={{
+              padding: "6px 12px", borderRadius: "8px",
+              background: "#FEF2F2", border: "1px solid #FECACA",
+              color: "#EF4444", fontSize: "12px"
+            }}>
+              ⚠ {excludedCriticalCount} critical hospital{excludedCriticalCount > 1 ? "s" : ""} hidden
+            </div>
+          )}
+          <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={includeCritical}
+              onChange={e => { setIncludeCritical(e.target.checked); }}
+              style={{ accentColor: "#EF4444", width: 15, height: 15 }}
+            />
+            <span style={{ color: "#475569", fontSize: "13px", fontWeight: 500 }}>Show critical hospitals</span>
+          </label>
         </div>
       </div>
 
@@ -507,37 +630,38 @@ const SearchPage = ({ searchQuery, setSearchQuery, showToast, userLocation, curr
         <div className="grid grid-cols-1 gap-4 max-w-5xl mx-auto">
           <h3 className="text-lg font-bold mb-2">Search Results ({sortedResults.length})</h3>
           {sortedResults.map((h, idx) => (
-            <div key={h.hospital_id} className={`glass-card rounded-2xl overflow-hidden flex flex-col md:flex-row items-stretch group relative border border-slate-800 ${idx === 0 ? 'border-cyan-500/40' : ''}`}>
-              <div className="w-2 md:w-3 bg-gradient-to-b from-emerald-500 to-emerald-600" />
+            <div key={h.hospital_id} className={`bg-white rounded-2xl overflow-hidden flex flex-col md:flex-row items-stretch group relative border shadow-sm hover:shadow-md transition-all ${idx === 0 ? 'border-blue-300' : 'border-slate-200 hover:border-blue-200'}`}>
+              <div className="w-2 md:w-3 bg-gradient-to-b from-blue-500 to-blue-600" />
               <div className="p-6 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2 text-left">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-bold text-lg text-white group-hover:text-cyan-400 transition-colors">{h.name}</h4>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="font-bold text-lg text-slate-800 group-hover:text-blue-600 transition-colors">{h.name}</h4>
                     <Badge color={h.type.toLowerCase() === 'public' ? 'blue' : 'purple'}>{h.type}</Badge>
                     {h.distance && <Badge color="cyan">{h.distance} km</Badge>}
+                    <EscalationBadge level={h.escalation_level ?? 0} />
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-slate-400">
-                    <span className="flex items-center gap-1"><MapPin size={12} className="text-cyan-500" /> {h.zone}</span>
+                  <div className="flex items-center gap-4 text-xs text-slate-500">
+                    <span className="flex items-center gap-1"><MapPin size={12} className="text-blue-500" /> {h.zone}</span>
                     <span className="flex items-center gap-1"><Shield size={12} className="text-emerald-500" /> Verified</span>
                   </div>
                   <div className="text-[11px] text-slate-500 mt-2">{h.address}</div>
                 </div>
                 <div className="flex items-center gap-4">
                   {['general_bed', 'icu_bed', 'ventilator'].map(type => (
-                    <div key={type} className="flex-1 p-3 rounded-xl bg-slate-900/50 border border-white/5 text-center">
-                      <div className={`text-lg font-bold font-mono ${h.resources?.[type]?.available > 0 ? 'text-white' : 'text-slate-600'}`}>{h.resources?.[type]?.available || 0}</div>
-                      <div className="text-[9px] uppercase tracking-wider font-bold opacity-80">{type.split('_')[0]}</div>
+                    <div key={type} className="flex-1 p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                      <div className={`text-lg font-bold font-mono ${h.resources?.[type]?.available > 0 ? 'text-slate-800' : 'text-slate-400'}`}>{h.resources?.[type]?.available || 0}</div>
+                      <div className="text-[9px] uppercase tracking-wider font-bold text-slate-500">{type.split('_')[0]}</div>
                     </div>
                   ))}
                 </div>
                 <div className="flex flex-col justify-center gap-2">
                   <button 
                     onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(h.name + ' ' + h.address)}`, '_blank')}
-                    className="w-full py-2.5 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-cyan-500/20"
+                    className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-[0.98]"
                   >
                     Get Directions
                   </button>
-                  <button className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all">
+                  <button className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all">
                     <Phone size={14} /> Call Hospital
                   </button>
                 </div>
@@ -555,11 +679,16 @@ const SearchPage = ({ searchQuery, setSearchQuery, showToast, userLocation, curr
   );
 };
 
-const AlertsPage = ({ alerts, alertStats, handleResolveAlert }) => {
+const AlertsPage = ({ alerts, alertStats, handleResolveAlert, hospitals }) => {
   const [allAlerts, setAllAlerts] = useState([]);
   const [alertFilter, setAlertFilter] = useState('Active');
   const [alertsLoading, setAlertsLoading] = useState(false);
   const [alertsError, setAlertsError] = useState(null);
+
+  const getHospitalEscalation = (hospitalId) => {
+    const h = (hospitals || []).find(h => h.hospital_id === hospitalId);
+    return h ? (h.escalation_level ?? 0) : 0;
+  };
 
   const loadAlerts = () => {
     setAlertsLoading(true);
@@ -582,14 +711,14 @@ const AlertsPage = ({ alerts, alertStats, handleResolveAlert }) => {
         <StatCard title="Avg. Resolution" value={`${alertStats?.avg_resolution_minutes || 0}m`} icon={Clock} color="cyan" />
       </div>
 
-      <div className="glass-card rounded-2xl p-6 min-h-[500px] border border-slate-800">
+      <div className="bg-white rounded-2xl p-6 min-h-[500px] border border-slate-200 shadow-md">
         <div className="flex justify-between items-center mb-6">
           <div className="flex gap-4">
             {['Active', 'Resolved'].map(tab => (
               <button 
                 key={tab} 
                 onClick={() => setAlertFilter(tab)}
-                className={`pb-2 px-1 text-sm font-bold transition-colors border-b-2 ${tab === alertFilter ? 'text-cyan-400 border-cyan-400' : 'text-slate-500 border-transparent hover:text-white'}`}
+                className={`pb-2 px-1 text-sm font-bold transition-colors border-b-2 ${tab === alertFilter ? 'text-blue-600 border-blue-600' : 'text-slate-500 border-transparent hover:text-slate-800'}`}
               >
                 {tab}
               </button>
@@ -601,29 +730,30 @@ const AlertsPage = ({ alerts, alertStats, handleResolveAlert }) => {
           {alertsLoading ? <LoadingSkeleton count={4} /> : alertsError ? (
             <ErrorState message={alertsError} onRetry={loadAlerts} />
           ) : allAlerts.length > 0 ? allAlerts.map(alert => (
-            <div key={alert.alert_id} className="p-4 rounded-xl border border-slate-800 bg-slate-900/40 flex flex-col md:flex-row items-center gap-4 hover:border-slate-700 transition-all">
+            <div key={alert.alert_id} className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col md:flex-row items-center gap-4 hover:border-blue-300 transition-all">
               <div className={`w-2 h-2 rounded-full ${alert.status === 'active' ? 'bg-red-500 pulse-dot danger' : 'bg-emerald-500'}`} />
               <div className="flex-1 space-y-1">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-bold text-white text-sm">{alert.hospital_name}</h4>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="font-bold text-slate-800 text-sm">{alert.hospital_name}</h4>
                   <Badge color={alert.severity === 'critical' ? 'red' : 'amber'}>{alert.severity}</Badge>
+                  <EscalationBadge level={getHospitalEscalation(alert.hospital_id)} />
                 </div>
-                <p className="text-xs text-slate-400 capitalize">{alert.resource_type.replace('_', ' ')} triggered at {alert.current_value} (Threshold: {alert.threshold_value})</p>
+                <p className="text-xs text-slate-500 capitalize">{alert.resource_type.replace('_', ' ')} triggered at {alert.current_value} (Threshold: {alert.threshold_value})</p>
               </div>
               <div className="text-right space-y-1 md:w-32">
-                <div className="text-[10px] text-slate-500 uppercase tracking-widest">{alert.status}</div>
-                <div className="text-[11px] text-slate-400">{new Date(alert.triggered_at).toLocaleTimeString()}</div>
+                <div className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">{alert.status}</div>
+                <div className="text-[11px] text-slate-500">{new Date(alert.triggered_at).toLocaleTimeString()}</div>
               </div>
               <div className="md:w-40 flex justify-end">
                 {alert.status === 'active' ? (
-                  <button onClick={() => handleResolveAlert(alert.alert_id)} className="px-4 py-1.5 bg-emerald-500/10 hover:bg-emerald-500 hover:text-white text-emerald-500 text-[11px] font-bold rounded-lg border border-emerald-500/20 transition-all">Mark Resolved</button>
+                  <button onClick={() => handleResolveAlert(alert.alert_id)} className="px-4 py-1.5 bg-emerald-50 hover:bg-emerald-500 hover:text-white text-emerald-600 text-[11px] font-bold rounded-lg border border-emerald-200 transition-all">Mark Resolved</button>
                 ) : (
-                  <div className="text-[10px] text-emerald-500 font-bold flex items-center gap-1"><CheckCircle2 size={12} /> Resolved</div>
+                  <div className="text-[10px] text-emerald-600 font-bold flex items-center gap-1"><CheckCircle2 size={12} /> Resolved</div>
                 )}
               </div>
             </div>
           )) : (
-            <div className="text-center py-20 text-slate-600">No {alertFilter.toLowerCase()} alerts found</div>
+            <div className="text-center py-20 text-slate-500">No {alertFilter.toLowerCase()} alerts found</div>
           )}
         </div>
       </div>
@@ -636,12 +766,16 @@ const AnalyticsPage = ({ showToast, loadInitialData }) => {
   const [analyticsTrends, setAnalyticsTrends] = useState(null);
   const [range, setRange] = useState('7d');
   const [analyticsError, setAnalyticsError] = useState(null);
+  const [analyticsEscalation, setAnalyticsEscalation] = useState(null);
 
   useEffect(() => {
     setAnalyticsError(null);
     api.getAnalyticsSummary()
       .then(d => setAnalyticsSummary(d.data))
       .catch(() => setAnalyticsError('Failed to load analytics summary'));
+    api.getEscalationSummary()
+      .then(d => setAnalyticsEscalation(d.data))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -666,20 +800,52 @@ const AnalyticsPage = ({ showToast, loadInitialData }) => {
     <div className="space-y-6 animate-in fade-in duration-500">
       {analyticsError && <ErrorState message={analyticsError} onRetry={() => loadInitialData()} />}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold flex items-center gap-2"><BarChart3 className="text-cyan-400" /> System Insights</h2>
+        <h2 className="text-2xl font-bold flex items-center gap-2 text-slate-800"><BarChart3 className="text-blue-600" /> System Insights</h2>
         <div className="flex gap-2">
           <select 
             value={range}
             onChange={(e) => setRange(e.target.value)}
-            className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white focus:outline-none"
+            className="bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs text-slate-700 focus:outline-none focus:border-blue-400"
           >
             <option value="7d">Last 7 Days</option>
             <option value="30d">Last 30 Days</option>
             <option value="90d">Last 3 Months</option>
           </select>
-          <button onClick={handleExport} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-colors">Export CSV</button>
+          <button onClick={handleExport} className="px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-colors">Export CSV</button>
         </div>
       </div>
+
+      {analyticsEscalation && (
+        <div style={{
+          background: "#F8FAFC", border: "1px solid #E2E8F0",
+          borderRadius: "12px", padding: "20px 24px"
+        }}>
+          <h3 style={{ color: "#1E293B", fontWeight: 700, marginBottom: "16px", fontSize: "15px" }}>City Escalation Snapshot</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
+            {[
+              { key: "normal",    level: 0, label: "Normal" },
+              { key: "pressured", level: 1, label: "Pressured" },
+              { key: "diverted",  level: 2, label: "Diverted" },
+              { key: "critical",  level: 3, label: "Critical" },
+            ].map(({ key, level, label }) => {
+              const cfg = ESCALATION_CONFIG[level];
+              const count = analyticsEscalation[key] ?? 0;
+              const pct = analyticsEscalation.total > 0
+                ? Math.round((count / analyticsEscalation.total) * 100) : 0;
+              return (
+                <div key={key} style={{
+                  background: cfg.bg, border: `1px solid ${cfg.border}`,
+                  borderRadius: "10px", padding: "14px 16px", textAlign: "center"
+                }}>
+                  <div style={{ fontSize: "32px", fontWeight: 800, color: cfg.color }}>{count}</div>
+                  <div style={{ fontSize: "13px", color: cfg.color, fontWeight: 600 }}>{label}</div>
+                  <div style={{ fontSize: "11px", color: "#64748B", marginTop: "4px" }}>{pct}% of hospitals</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="glass-card p-6 rounded-2xl border border-slate-800">
@@ -790,6 +956,22 @@ const MyHospitalPage = ({
         <p className="text-slate-400">Update current availability for {h?.name}</p>
       </div>
 
+      <div style={{ marginBottom: "16px" }}>
+        <div style={{ color: "#94A3B8", fontSize: "12px", marginBottom: "6px" }}>CURRENT ESCALATION LEVEL</div>
+        <EscalationBadge level={h?.escalation_level ?? 0} size="lg" />
+        {(h?.escalation_level ?? 0) >= 2 && (
+          <div style={{
+            marginTop: "10px", padding: "10px 14px", borderRadius: "8px",
+            background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)",
+            color: "#EF4444", fontSize: "13px"
+          }}>
+            Your hospital is currently{" "}
+            {h.escalation_level === 2 ? "diverting non-critical patients" : "at critical capacity"}.
+            Update your resource counts to reflect current availability.
+          </div>
+        )}
+      </div>
+
       <div className="glass-card rounded-2xl p-8 space-y-8 border border-slate-800">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
@@ -822,6 +1004,69 @@ const MyHospitalPage = ({
   );
 };
 
+const EscalationHistoryTab = () => {
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [histFilters, setHistFilters] = useState({ days: 30 });
+
+  useEffect(() => {
+    setLoading(true);
+    api.getEscalationHistory(histFilters).then(data => {
+      setHistory(data.data?.history ?? []);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, [histFilters]);
+
+  return (
+    <div className="glass-card rounded-2xl p-6 border border-slate-800">
+      <div style={{ display: "flex", gap: "12px", marginBottom: "16px", flexWrap: "wrap" }}>
+        <select
+          value={histFilters.days}
+          onChange={e => setHistFilters(f => ({ ...f, days: e.target.value }))}
+          style={{
+            background: "rgba(16,34,68,0.7)", border: "1px solid rgba(30,48,94,0.6)",
+            borderRadius: "8px", padding: "6px 12px", color: "#F8FAFC", fontSize: "13px"
+          }}>
+          <option value={7}>Last 7 days</option>
+          <option value={30}>Last 30 days</option>
+          <option value={90}>Last 90 days</option>
+        </select>
+      </div>
+      {loading ? (
+        <div style={{ color: "#64748B", textAlign: "center", padding: "40px" }}>Loading...</div>
+      ) : history.length === 0 ? (
+        <div style={{ color: "#64748B", textAlign: "center", padding: "40px" }}>
+          No escalation level changes in the selected period.
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {history.map((entry, i) => (
+            <div key={entry.log_id} style={{
+              display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap",
+              background: i % 2 === 0 ? "rgba(16,34,68,0.5)" : "rgba(16,34,68,0.3)",
+              borderRadius: "8px", padding: "10px 14px",
+              border: "1px solid rgba(30,48,94,0.4)"
+            }}>
+              <div style={{ minWidth: 180 }}>
+                <div style={{ color: "#F8FAFC", fontWeight: 600, fontSize: "13px" }}>{entry.hospital_name}</div>
+                <div style={{ color: "#64748B", fontSize: "11px" }}>{entry.hospital_zone} Zone</div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <EscalationBadge level={entry.old_level ?? 0} />
+                <span style={{ color: "#64748B", fontSize: "16px" }}>→</span>
+                <EscalationBadge level={entry.new_level ?? 0} />
+              </div>
+              <div style={{ marginLeft: "auto", color: "#64748B", fontSize: "11px" }}>
+                {new Date(entry.changed_at).toLocaleString()}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const AdminPanel = ({ users, auditLogs, thresholds, modals, setModals, loadError, loadInitialData }) => {
   const [adminTab, setAdminTab] = useState('Users');
 
@@ -830,7 +1075,7 @@ const AdminPanel = ({ users, auditLogs, thresholds, modals, setModals, loadError
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex gap-4 border-b border-slate-800 pb-px">
-        {['Users', 'Thresholds', 'Audit Logs'].map(tab => (
+        {['Users', 'Thresholds', 'Audit Logs', 'Escalation History'].map(tab => (
           <button 
             key={tab} 
             onClick={() => setAdminTab(tab)}
@@ -932,6 +1177,8 @@ const AdminPanel = ({ users, auditLogs, thresholds, modals, setModals, loadError
           </div>
         </div>
       )}
+
+      {adminTab === 'Escalation History' && <EscalationHistoryTab />}
     </div>
   );
 };
@@ -1006,7 +1253,27 @@ const HospitalDetailsContent = ({ hospital }) => (
         </div>
       </div>
     </div>
-    
+
+    <div style={{ borderTop: "1px solid rgba(30,48,94,0.5)", paddingTop: "16px", marginTop: "8px" }}>
+      <div style={{ color: "#94A3B8", fontSize: "12px", fontWeight: 600, marginBottom: "8px" }}>ESCALATION STATUS</div>
+      <EscalationBadge level={hospital.escalation_level ?? 0} size="lg" />
+      {hospital.escalation_updated_at && (
+        <div style={{ color: "#64748B", fontSize: "11px", marginTop: "6px" }}>
+          Last updated: {new Date(hospital.escalation_updated_at).toLocaleString()}
+        </div>
+      )}
+      {(hospital.escalation_level ?? 0) >= 1 && (
+        <div style={{
+          marginTop: "10px", padding: "8px 12px", borderRadius: "6px",
+          background: "rgba(16,34,68,0.5)", color: "#94A3B8", fontSize: "12px"
+        }}>
+          {hospital.escalation_level === 1 && "Resources running low. Internal capacity actions should begin."}
+          {hospital.escalation_level === 2 && "Non-critical admissions should be routed to other hospitals in this zone."}
+          {hospital.escalation_level === 3 && "Hospital at critical capacity. Emergency admissions only. All others must be diverted."}
+        </div>
+      )}
+    </div>
+
     <div className="pt-6 border-t border-slate-800 flex justify-end gap-3">
       <button className="px-6 py-2.5 rounded-xl border border-slate-800 hover:bg-slate-800 text-sm font-bold transition-all">Download Report</button>
       <button 
@@ -1327,142 +1594,133 @@ const Login = ({ onLogin, onRegister }) => {
     setRegLoading(false);
   };
 
-  const inputCls = "w-full bg-slate-900/50 border border-slate-800 rounded-2xl py-3.5 pl-12 pr-4 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-4 ring-cyan-500/5 transition-all placeholder:text-slate-600";
-  const iconCls  = "absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-cyan-400 transition-colors";
+  const inputCls = "w-full bg-white border border-slate-300 rounded-xl py-3 pl-11 pr-4 text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-slate-400 text-sm";
+  const iconCls  = "absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0A0E1A] p-4 relative overflow-hidden medi-grid-bg">
-      <div className="w-full max-w-[440px] animate-in fade-in zoom-in duration-500 relative z-10">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 50%, #E0F2FE 100%)' }}>
+      <div className="absolute inset-0 medi-grid-bg opacity-40" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-sky-100 rounded-full blur-3xl opacity-60 translate-y-1/2 -translate-x-1/2" />
+
+      <div className="w-full max-w-[410px] animate-in fade-in zoom-in duration-500 relative z-10">
         {/* Logo */}
-        <div className="text-center mb-8 space-y-2">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-cyan-500 text-white shadow-[0_0_30px_rgba(6,182,212,0.4)] mb-2">
-            <Shield size={32} />
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600 text-white shadow-lg mb-4">
+            <Shield size={28} />
           </div>
-          <h1 className="text-4xl font-black text-white tracking-tighter">MediGrid</h1>
-          <p className="text-slate-400 font-medium">Critical Resource Management System</p>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">MediGrid</h1>
+          <p className="text-slate-500 text-sm font-medium mt-1">Hospital Resource Management System</p>
         </div>
 
-        <div className="glass-card rounded-3xl border border-slate-800 shadow-2xl overflow-hidden">
-          {/* Tabs */}
-          <div className="flex border-b border-slate-800">
-            <button
-              onClick={() => setTab('login')}
-              className={`flex-1 py-4 text-sm font-bold transition-all ${tab === 'login' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-500/5' : 'text-slate-500 hover:text-white'}`}
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => setTab('register')}
-              className={`flex-1 py-4 text-sm font-bold transition-all ${tab === 'register' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-500/5' : 'text-slate-500 hover:text-white'}`}
-            >
-              Register
-            </button>
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+          <div className="flex border-b border-slate-100">
+            <button onClick={() => setTab('login')} className={`flex-1 py-3.5 text-sm font-semibold transition-all ${tab === 'login' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/60' : 'text-slate-500 hover:text-slate-700'}`}>Sign In</button>
+            <button onClick={() => setTab('register')} className={`flex-1 py-3.5 text-sm font-semibold transition-all ${tab === 'register' ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/60' : 'text-slate-500 hover:text-slate-700'}`}>Register</button>
           </div>
 
-          <div className="p-8">
-            {/* ---- LOGIN FORM ---- */}
+          <div className="p-7">
             {tab === 'login' && (
-              <form onSubmit={handleLogin} className="space-y-5">
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
+                  <label className="text-xs font-semibold text-slate-600">Email Address</label>
                   <div className="relative group">
-                    <div className={iconCls}><Mail size={18} /></div>
+                    <div className={iconCls}><Mail size={16} /></div>
                     <input type="email" required value={email} onChange={e => setEmail(e.target.value)} className={inputCls} placeholder="name@example.com" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <div className="flex justify-between ml-1">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Password</label>
-                    <a href="#" className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 uppercase tracking-widest">Forgot?</a>
+                  <div className="flex justify-between">
+                    <label className="text-xs font-semibold text-slate-600">Password</label>
+                    <a href="#" className="text-xs font-semibold text-blue-600 hover:text-blue-700">Forgot password?</a>
                   </div>
                   <div className="relative group">
-                    <div className={iconCls}><Lock size={18} /></div>
-                    <input type={showPassword ? 'text' : 'password'} required value={password} onChange={e => setPassword(e.target.value)} className={`${inputCls} pr-12`} placeholder="••••••••" />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    <div className={iconCls}><Lock size={16} /></div>
+                    <input type={showPassword ? 'text' : 'password'} required value={password} onChange={e => setPassword(e.target.value)} className={`${inputCls} pr-11`} placeholder="••••••••" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
 
-                <button type="submit" disabled={loginLoading} className="w-full py-4 bg-cyan-500 hover:bg-cyan-600 disabled:opacity-50 text-white font-bold rounded-2xl shadow-xl shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
-                  {loginLoading ? <RefreshCcw size={20} className="animate-spin" /> : <>Sign In <ChevronRight size={18} /></>}
+                <button type="submit" disabled={loginLoading} className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                  {loginLoading ? <RefreshCcw size={18} className="animate-spin" /> : <>Sign In <ChevronRight size={16} /></>}
                 </button>
 
-                <div className="pt-4 border-t border-slate-800 space-y-3">
-                  <p className="text-[10px] text-center font-bold text-slate-500 uppercase tracking-widest">Quick Access</p>
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <p className="text-[11px] text-center font-semibold text-slate-400 uppercase tracking-widest">Demo Quick Access</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {[['admin','SYSTEM ADMIN'],['hospital','HOSPITAL ADMIN'],['operator','OPERATOR'],['authority','AUTHORITY']].map(([k,l]) => (
-                      <button key={k} onClick={(e) => fillDemo(e, k)} className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-bold text-slate-400 hover:border-cyan-500/50 hover:text-cyan-400 transition-all">{l}</button>
+                    {[['admin','System Admin'],['hospital','Hospital Admin'],['operator','Operator'],['authority','Authority']].map(([k,l]) => (
+                      <button key={k} onClick={(e) => fillDemo(e, k)} className="p-2 rounded-lg bg-slate-50 border border-slate-200 text-[11px] font-semibold text-slate-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 transition-all">{l}</button>
                     ))}
                   </div>
                 </div>
               </form>
             )}
 
-            {/* ---- REGISTER FORM ---- */}
             {tab === 'register' && (
               <form onSubmit={handleRegister} className="space-y-4">
-                <div className="p-3 bg-cyan-500/5 border border-cyan-500/10 rounded-xl">
-                  <p className="text-[11px] text-cyan-400 font-medium">Register as a public user or as a new hospital admin.</p>
+                <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl">
+                  <p className="text-[11px] text-blue-600 font-medium">Register as a general user or as a new hospital administrator.</p>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Account Type</label>
+                  <label className="text-xs font-semibold text-slate-600">Account Type</label>
                   <div className="grid grid-cols-2 gap-2">
-                    <button type="button" onClick={() => setRegRole('user')} className={`p-2 rounded-xl text-[10px] font-bold transition-all border ${regRole === 'user' ? 'bg-cyan-500/10 border-cyan-500/50 text-cyan-400' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-cyan-500/30'}`}>GENERAL USER</button>
-                    <button type="button" onClick={() => setRegRole('hospital_admin')} className={`p-2 rounded-xl text-[10px] font-bold transition-all border ${regRole === 'hospital_admin' ? 'bg-cyan-500/10 border-cyan-500/50 text-cyan-400' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-cyan-500/30'}`}>HOSPITAL ADMIN</button>
+                    <button type="button" onClick={() => setRegRole('user')} className={`p-2 rounded-xl text-xs font-semibold transition-all border ${regRole === 'user' ? 'bg-blue-50 border-blue-400 text-blue-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-blue-300'}`}>General User</button>
+                    <button type="button" onClick={() => setRegRole('hospital_admin')} className={`p-2 rounded-xl text-xs font-semibold transition-all border ${regRole === 'hospital_admin' ? 'bg-blue-50 border-blue-400 text-blue-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-blue-300'}`}>Hospital Admin</button>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
+                  <label className="text-xs font-semibold text-slate-600">Full Name</label>
                   <div className="relative group">
-                    <div className={iconCls}><User size={18} /></div>
+                    <div className={iconCls}><User size={16} /></div>
                     <input type="text" required value={regName} onChange={e => setRegName(e.target.value)} className={inputCls} placeholder="John Doe" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
+                  <label className="text-xs font-semibold text-slate-600">Email Address</label>
                   <div className="relative group">
-                    <div className={iconCls}><Mail size={18} /></div>
+                    <div className={iconCls}><Mail size={16} /></div>
                     <input type="email" required value={regEmail} onChange={e => setRegEmail(e.target.value)} className={inputCls} placeholder="name@example.com" />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Password</label>
+                  <label className="text-xs font-semibold text-slate-600">Password</label>
                   <div className="relative group">
-                    <div className={iconCls}><Lock size={18} /></div>
-                    <input type={regShowPw ? 'text' : 'password'} required value={regPassword} onChange={e => setRegPassword(e.target.value)} className={`${inputCls} pr-12`} placeholder="Min. 6 characters" />
-                    <button type="button" onClick={() => setRegShowPw(!regShowPw)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
-                      {regShowPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                    <div className={iconCls}><Lock size={16} /></div>
+                    <input type={regShowPw ? 'text' : 'password'} required value={regPassword} onChange={e => setRegPassword(e.target.value)} className={`${inputCls} pr-11`} placeholder="Min. 6 characters" />
+                    <button type="button" onClick={() => setRegShowPw(!regShowPw)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                      {regShowPw ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Confirm Password</label>
+                  <label className="text-xs font-semibold text-slate-600">Confirm Password</label>
                   <div className="relative group">
-                    <div className={iconCls}><Lock size={18} /></div>
+                    <div className={iconCls}><Lock size={16} /></div>
                     <input type="password" required value={regConfirm} onChange={e => setRegConfirm(e.target.value)} className={inputCls} placeholder="Re-enter password" />
                   </div>
                 </div>
 
                 {regError && (
-                  <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs font-medium">
+                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-xs font-medium">
                     <AlertCircle size={14} /> {regError}
                   </div>
                 )}
 
-                <button type="submit" disabled={regLoading} className="w-full py-4 bg-cyan-500 hover:bg-cyan-600 disabled:opacity-50 text-white font-bold rounded-2xl shadow-xl shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
-                  {regLoading ? <RefreshCcw size={20} className="animate-spin" /> : <>Create Account <ChevronRight size={18} /></>}
+                <button type="submit" disabled={regLoading} className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                  {regLoading ? <RefreshCcw size={18} className="animate-spin" /> : <>Create Account <ChevronRight size={16} /></>}
                 </button>
 
-                <p className="text-center text-[10px] text-slate-500 pt-2">
+                <p className="text-center text-xs text-slate-400 pt-1">
                   Already have an account?{' '}
-                  <button type="button" onClick={() => setTab('login')} className="text-cyan-400 font-bold hover:text-cyan-300">Sign in</button>
+                  <button type="button" onClick={() => setTab('login')} className="text-blue-600 font-semibold hover:text-blue-700">Sign in</button>
                 </p>
               </form>
             )}
@@ -1471,6 +1729,7 @@ const Login = ({ onLogin, onRegister }) => {
       </div>
     </div>
   );
+
 };
 
 export default function App() {
@@ -1496,6 +1755,7 @@ export default function App() {
   const [users, setUsers] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [thresholds, setThresholds] = useState([]);
+  const [escalationSummary, setEscalationSummary] = useState(null);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -1580,6 +1840,7 @@ export default function App() {
       if (['system_admin', 'authority'].includes(role)) {
         promises.push(api.getAnalyticsSummary().then(d => setDashStats(d.data)));
         promises.push(api.getAnalyticsTrends('7d').then(d => setTrends(d.data)));
+        promises.push(api.getEscalationSummary().then(d => setEscalationSummary(d.data)).catch(() => {}));
       }
 
       if (role === 'system_admin') {
@@ -1715,77 +1976,89 @@ export default function App() {
   if (!isLoggedIn) return <Login onLogin={handleLogin} onRegister={handleRegister} />;
 
   return (
-    <div className="min-h-screen flex bg-[#0A0E1A] text-slate-200 medi-grid-bg">
+    <div className="min-h-screen flex bg-slate-50 text-slate-700">
       {/* Sidebar */}
-      <aside className={`w-[240px] border-r border-slate-800 bg-[#0D1117] flex flex-col h-screen fixed inset-y-0 z-40 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="p-6">
-          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => setActivePage('dashboard')}>
-            <div className="w-10 h-10 rounded-xl bg-cyan-500 flex items-center justify-center text-white shadow-[0_0_20px_rgba(6,182,212,0.4)] group-hover:scale-110 transition-transform">
-              <Shield size={24} />
+      <aside className={`w-[240px] border-r border-slate-200 bg-white flex flex-col h-screen fixed inset-y-0 z-40 transition-transform duration-300 shadow-sm ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        {/* Logo */}
+        <div className="px-5 py-5 border-b border-slate-100">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActivePage('dashboard')}>
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md">
+              <Shield size={20} />
             </div>
-            <span className="text-xl font-bold tracking-tighter text-white">MediGrid</span>
+            <div>
+              <span className="text-base font-extrabold tracking-tight text-slate-900">MediGrid</span>
+              <div className="text-[9px] text-slate-400 uppercase tracking-widest font-semibold">Hospital Network</div>
+            </div>
           </div>
         </div>
 
-        <nav className="flex-1 px-4 py-4 space-y-1.5">
+        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-3 pb-2">Navigation</div>
           {navItems.map(item => (
             <button
               key={item.id}
               onClick={() => setActivePage(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative ${activePage === item.id ? 'active-nav-item' : 'text-slate-500 hover:text-white hover:bg-slate-800/50'}`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group relative ${
+                activePage === item.id
+                  ? 'active-nav-item'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+              }`}
             >
-              <item.icon size={20} className={activePage === item.id ? 'text-cyan-400' : 'group-hover:text-cyan-400 transition-colors'} />
-              <span className="text-sm font-bold">{item.label}</span>
+              <item.icon size={18} className={activePage === item.id ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600 transition-colors'} />
+              <span className="text-sm font-medium">{item.label}</span>
               {item.badge > 0 && (
-                <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-slate-900">{item.badge}</span>
+                <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{item.badge}</span>
               )}
             </button>
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-800 bg-slate-900/20">
-          <div className="flex items-center gap-3 p-2">
+        {/* User Footer */}
+        <div className="p-3 border-t border-slate-100 bg-slate-50">
+          <div className="flex items-center gap-3 px-2 py-2">
             <div className="relative">
-              <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 overflow-hidden flex items-center justify-center">
-                <User size={20} className="text-slate-500" />
+              <div className="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center">
+                <User size={17} className="text-blue-600" />
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-900" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white" />
             </div>
             <div className="flex-1 overflow-hidden">
-              <div className="text-sm font-bold text-white truncate">{currentUser?.name || 'User'}</div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest truncate">{currentUser?.role.replace('_', ' ')}</div>
+              <div className="text-sm font-semibold text-slate-800 truncate">{currentUser?.name || 'User'}</div>
+              <div className="text-[10px] text-slate-400 capitalize truncate">{currentUser?.role.replace('_', ' ')}</div>
             </div>
-            <button onClick={handleLogout} className="p-2 text-slate-500 hover:text-red-400 transition-colors"><LogOut size={16} /></button>
+            <button onClick={handleLogout} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><LogOut size={15} /></button>
           </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isSidebarOpen ? 'lg:pl-[240px]' : ''}`}>
-        <header className="h-16 border-b border-slate-800 bg-[#0A0E1A]/80 backdrop-blur-xl sticky top-0 z-30 px-6 flex items-center justify-between">
+      <main className={`flex-1 flex flex-col min-h-screen transition-all duration-300 bg-slate-50 ${isSidebarOpen ? 'lg:pl-[240px]' : ''}`}>
+        <header className="h-14 border-b border-slate-200 bg-white/90 backdrop-blur-md sticky top-0 z-30 px-6 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-4">
-            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 lg:hidden">
+            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 lg:hidden">
               <Menu size={20} />
             </button>
-            <h2 className="text-lg font-bold text-white capitalize">{activePage.replace(/([A-Z])/g, ' $1')}</h2>
+            <div>
+              <h2 className="text-base font-bold text-slate-900 capitalize">{activePage.replace(/([A-Z])/g, ' $1')}</h2>
+            </div>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <div className="hidden md:flex flex-col items-end">
-              <div className="text-xs font-bold text-slate-400 flex items-center gap-1.5 uppercase tracking-tighter">
-                <Clock size={12} className="text-cyan-400" />
+              <div className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                <Clock size={12} className="text-blue-500" />
                 {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
-              <div className="text-[10px] text-slate-500">{currentTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+              <div className="text-[10px] text-slate-400">{currentTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</div>
             </div>
 
             {currentUser?.role === 'system_admin' && (
               <div className="hidden md:flex items-center gap-2">
-                <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">View As</span>
+                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">View As</span>
                 <select
                   value={viewRole || 'system_admin'}
                   onChange={(e) => handleRoleSwitch(e.target.value)}
-                  className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
+                  className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-700 focus:outline-none"
                 >
                   <option value="system_admin">System Admin</option>
                   <option value="hospital_admin">Hospital Admin</option>
@@ -1795,11 +2068,11 @@ export default function App() {
               </div>
             )}
 
-            <div className="h-8 w-px bg-slate-800 mx-2" />
+            <div className="h-7 w-px bg-slate-200 mx-1" />
 
-            <button className="relative p-2 text-slate-500 hover:text-white transition-colors" onClick={() => setActivePage('alerts')}>
-              <Bell size={20} />
-              {alerts.length > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-[#0A0E1A]" />}
+            <button className="relative p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" onClick={() => setActivePage('alerts')}>
+              <Bell size={19} />
+              {alerts.length > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />}
             </button>
           </div>
         </header>
@@ -1816,6 +2089,7 @@ export default function App() {
             loadInitialData={loadInitialData}
             handleResolveAlert={handleResolveAlert}
             setActivePage={setActivePage}
+            escalationSummary={escalationSummary}
           />}
           {activePage === 'hospitals' && <HospitalsPage 
             hospitals={hospitals} 
@@ -1843,6 +2117,7 @@ export default function App() {
             alerts={alerts}
             alertStats={alertStats}
             handleResolveAlert={handleResolveAlert}
+            hospitals={hospitals}
           />}
           {activePage === 'analytics' && <AnalyticsPage 
             showToast={showToast}

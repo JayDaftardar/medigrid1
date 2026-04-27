@@ -30,8 +30,13 @@ def search():
         query_text = request.args.get('q', '')
         user_lat = request.args.get('user_lat', type=float)
         user_lng = request.args.get('user_lng', type=float)
+        include_critical = request.args.get('include_critical', 'false').lower() == 'true'
 
         query = db.session.query(Hospital).join(Resource).filter(Hospital.status == 'active')
+
+        # Soft-exclude Level 3 hospitals unless include_critical=true
+        if not include_critical:
+            query = query.filter(Hospital.escalation_level < 3)
 
         if zone and zone != 'All Zones':
             query = query.filter(Hospital.zone == zone)
@@ -46,6 +51,7 @@ def search():
         hospitals = query.order_by(Resource.available_count.desc()).all()
         results = []
 
+        from app.services.escalation_service import LEVEL_NAMES
         for h in hospitals:
             h_data = hospital_schema.dump(h)
             dist = None
@@ -53,6 +59,8 @@ def search():
                 dist = haversine(user_lat, user_lng, float(h.lat), float(h.lng))
 
             h_data['distance_km'] = round(dist, 2) if dist is not None else None
+            h_data['escalation_level'] = h.escalation_level
+            h_data['escalation_level_name'] = LEVEL_NAMES.get(h.escalation_level, "Normal")
             results.append(h_data)
 
         if user_lat is not None and user_lng is not None:
@@ -63,6 +71,15 @@ def search():
 
         for i in range(1, len(results)):
             results[i]['is_best_match'] = False
+
+        # Count excluded critical hospitals
+        if not include_critical:
+            excluded_count = db.session.query(Hospital).filter(
+                Hospital.status == 'active',
+                Hospital.escalation_level == 3
+            ).count()
+        else:
+            excluded_count = 0
 
         try:
             verify_jwt_in_request(optional=True)
@@ -82,7 +99,8 @@ def search():
 
         return success_response({
             "results": results,
-            "total": len(results)
+            "total": len(results),
+            "excluded_critical_count": excluded_count
         })
     except Exception as e:
         return error_response(str(e))

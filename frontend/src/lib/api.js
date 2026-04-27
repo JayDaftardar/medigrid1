@@ -46,7 +46,7 @@ export const api = {
   search: (params = {}) => {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
-      if (value) searchParams.append(key, value);
+      if (value !== undefined && value !== null && value !== '') searchParams.append(key, value);
     });
     return fetch(`${BASE_URL}/search?${searchParams.toString()}`).then(r => r.json());
   },
@@ -80,8 +80,8 @@ export const api = {
   toggleUser:        (id, status) => fetch(`${BASE_URL}/users/${id}/status`, { method: 'PATCH', headers: headers(), body: JSON.stringify({ status }) }).then(r => r.json()),
 
   // Thresholds
-  getThresholds:    ()            => fetch(`${BASE_URL}/thresholds`, { headers: headers() }).then(r => r.json()),
-  updateThresholds: (id, data)    => fetch(`${BASE_URL}/thresholds/${id}`, { method: 'PUT', headers: headers(), body: JSON.stringify(data) }).then(r => r.json()),
+  getThresholds:   ()            => fetch(`${BASE_URL}/thresholds`, { headers: headers() }).then(r => r.json()),
+  updateThreshold: (id, data)    => fetch(`${BASE_URL}/thresholds/${id}`, { method: 'PUT', headers: headers(), body: JSON.stringify(data) }).then(r => r.json()),
 
   // Audit Logs
   getAuditLogs: (params = {}) => {
@@ -91,4 +91,10 @@ export const api = {
     });
     return fetch(`${BASE_URL}/audit-logs?${searchParams.toString()}`, { headers: headers() }).then(r => r.json());
   },
+
+  // Escalation
+  getEscalationSummary: ()             => fetch(`${BASE_URL}/escalation/summary`,                              { headers: headers() }).then(r => r.json()),
+  getEscalationHistory: (params = {})  => fetch(`${BASE_URL}/escalation/history?${new URLSearchParams(params)}`, { headers: headers() }).then(r => r.json()),
+  getHospitalsByLevel:  (level)        => fetch(`${BASE_URL}/escalation/hospitals?level=${level}`,              { headers: headers() }).then(r => r.json()),
 };
+

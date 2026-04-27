@@ -6,6 +6,7 @@ from app.models.audit_log import AuditLog
 from app.extensions import db
 from app.utils.responses import success_response, error_response
 from app.utils.decorators import role_required as custom_role_required
+from app.services.escalation_service import get_city_escalation_summary
 import csv
 import io
 from datetime import datetime, timedelta
@@ -49,15 +50,19 @@ def get_summary():
         top_overloaded = sorted(hospital_rows, key=lambda x: x["utilization_pct"], reverse=True)[:5]
         top_underutilized = sorted(hospital_rows, key=lambda x: x["utilization_pct"])[:5]
 
+        escalation_summary = get_city_escalation_summary(db)
+
         return success_response({
             "total_hospitals": total_hospitals,
             "city_totals": city_totals,
             "zone_utilization": zone_utilization,
             "top_overloaded": top_overloaded,
-            "top_underutilized": top_underutilized
+            "top_underutilized": top_underutilized,
+            "escalation_summary": escalation_summary
         })
     except Exception as e:
         return error_response(str(e))
+
 
 @analytics_bp.route('/trends', methods=['GET'])
 @jwt_required()

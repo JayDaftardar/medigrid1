@@ -1,5 +1,5 @@
 from app.extensions import db
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 class Hospital(db.Model):
@@ -16,6 +16,8 @@ class Hospital(db.Model):
     lng = db.Column(db.Numeric(10, 7))
     status = db.Column(db.String(20), nullable=False, default='active')
     registered_at = db.Column(db.DateTime, default=datetime.utcnow)
+    escalation_level = db.Column(db.Integer, nullable=False, default=0)
+    escalation_updated_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
     resources = db.relationship('Resource', backref='hospital', lazy=True, cascade="all, delete-orphan")
     alerts = db.relationship('Alert', backref='hospital', lazy=True, cascade="all, delete-orphan")

@@ -7,6 +7,7 @@ from .analytics import analytics_bp
 from .users import users_bp
 from .thresholds import thresholds_bp
 from .audit_logs import audit_logs_bp
+from .escalation import escalation_bp
 
 def register_routes(app):
     @app.route('/')
@@ -23,3 +24,4 @@ def register_routes(app):
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(thresholds_bp, url_prefix='/api/thresholds')
     app.register_blueprint(audit_logs_bp, url_prefix='/api/audit-logs')
+    app.register_blueprint(escalation_bp, url_prefix='/api/escalation')

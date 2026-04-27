@@ -50,6 +50,7 @@ def seed_db():
             { "name": "Ms. Kavita Desai",   "email": "kavita@punecity.gov.in",  "password": "Authority@123", "role": "authority",      "hospital_id": None },
         ]
 
+        admin_user = None
         for u_info in users_data:
             h_name = u_info.pop("hospital", None)
             if h_name:
@@ -59,6 +60,10 @@ def seed_db():
             user = User(**u_info)
             user.set_password(password)
             db.session.add(user)
+            if u_info.get("role") == "system_admin":
+                admin_user = user
+
+        db.session.flush()  # Flush to get user IDs
 
         print("Seeding demo alerts...")
         # City General Hospital | ICU beds: 8, threshold: 10 -> alert
@@ -80,8 +85,24 @@ def seed_db():
         alert2 = Alert(hospital_id=ph_id, resource_type="general_bed", threshold_value=200, current_value=167, severity="warning", status="active")
         db.session.add(alert2)
 
+        print("Computing initial escalation levels...")
+        from app.services.escalation_service import update_escalation_level
+        db.session.flush()  # Ensure resources are flushed before computing levels
+
+        # Use the admin user id for audit log attribution during seeding
+        admin_id = str(admin_user.user_id) if admin_user else "00000000-0000-0000-0000-000000000000"
+
+        for hospital in db.session.query(Hospital).all():
+            update_escalation_level(
+                hospital_id=str(hospital.hospital_id),
+                user_id=admin_id,
+                db=db
+            )
+
         db.session.commit()
         print("Database seeded successfully!")
+        print("Escalation levels seeded for all hospitals.")
 
 if __name__ == '__main__':
     seed_db()
+

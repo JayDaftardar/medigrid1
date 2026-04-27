@@ -18,6 +18,8 @@ class HospitalSchema(Schema):
     lng = fields.Float()
     status = fields.Str()
     registered_at = fields.DateTime()
+    escalation_level = fields.Integer(dump_default=0)
+    escalation_updated_at = fields.DateTime(allow_none=True)
     
     # Custom resource mapping for the frontend format
     resources = fields.Method("get_resources")
